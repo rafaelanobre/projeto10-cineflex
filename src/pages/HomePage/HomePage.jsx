@@ -1,27 +1,33 @@
 import styled from "styled-components"
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import loading from '../../assets/loading.gif';
 
 export default function HomePage() {
     const [movies, setMovies] = useState([]);
 
-    useEffect(getMovies, []);
-
-    function getMovies(){
+    useEffect(() => {
         const URL = 'https://mock-api.driven.com.br/api/v8/cineflex/movies';
 
-    const promise = axios.get(URL);
+        const promise = axios.get(URL);
 
-    promise.then((resposta) =>{
-        //console.log(resposta.data);
-        setMovies(resposta.data);
-    });
+        promise.then((resposta) =>{
+            //console.log(resposta.data);
+            setMovies(resposta.data);
+        });
 
-    promise.catch((erro) => {
-        console.log(erro.response.data);
-    });
+        promise.catch((erro) => {
+            console.log(erro.response.data);
+        });
+    }, []);
+
+    if(movies.length === 0){
+        return(
+            <LoadingDiv>
+                <img src={loading}></img>
+            </LoadingDiv>
+        )
     }
-
 
     return (
         <PageContainer>
@@ -69,5 +75,15 @@ const MovieContainer = styled.div`
     img {
         width: 130px;
         height: 190px;
+    }
+`
+const LoadingDiv = styled.div`
+    padding-top: 10%;
+    width:100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    img{
+        width: 200px;
     }
 `
