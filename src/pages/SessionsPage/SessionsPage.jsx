@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom"
 import styled from "styled-components"
 import axios from "axios";
-import { useEffect, useState } from "react";
+import React,{ useEffect, useState } from "react";
 import loading from '../../assets/loading.gif';
 
 export default function SessionsPage() {
@@ -16,6 +16,7 @@ export default function SessionsPage() {
         const promise = axios.get(URL);
 
         promise.then((resposta) =>{
+            console.log(resposta.data);
             setSessions(resposta.data);
         });
 
@@ -36,29 +37,16 @@ export default function SessionsPage() {
         <PageContainer>
             Selecione o horário
             <div>
-                <SessionContainer>
-                    Sexta - 03/03/2023
-                    <ButtonsContainer>
-                        <button>14:00</button>
-                        <button>15:00</button>
-                    </ButtonsContainer>
-                </SessionContainer>
-
-                <SessionContainer>
-                    Sexta - 03/03/2023
-                    <ButtonsContainer>
-                        <button>14:00</button>
-                        <button>15:00</button>
-                    </ButtonsContainer>
-                </SessionContainer>
-
-                <SessionContainer>
-                    Sexta - 03/03/2023
-                    <ButtonsContainer>
-                        <button>14:00</button>
-                        <button>15:00</button>
-                    </ButtonsContainer>
-                </SessionContainer>
+                {sessions.days.map(session => (
+                    <SessionContainer key={session.id}>
+                        {session.weekday} - {session.date}
+                        <ButtonsContainer>
+                            {session.showtimes.map(time => (
+                                <button key={time.id}>{time.name}</button>
+                            ))}
+                        </ButtonsContainer>
+                    </SessionContainer>
+                ))}
             </div>
 
             <FooterContainer>
@@ -103,6 +91,17 @@ const ButtonsContainer = styled.div`
     margin: 20px 0;
     button {
         margin-right: 20px;
+        background-color: #E8833A;
+        color: #ffffff;
+        font-size: 18px;
+        border: none;
+        border-radius: 3px;
+        padding: 10px;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    button:hover{
+        cursor: pointer;
     }
     a {
         text-decoration: none;
