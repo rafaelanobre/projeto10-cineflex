@@ -1,6 +1,36 @@
+import { useParams } from "react-router-dom"
 import styled from "styled-components"
+import axios from "axios";
+import { useEffect, useState } from "react";
+import loading from '../../assets/loading.gif';
 
 export default function SessionsPage() {
+
+    const [sessions, setSessions] = useState(undefined);
+
+    const parametros = useParams();
+
+    useEffect(() => {
+        const URL = `https://mock-api.driven.com.br/api/v8/cineflex/movies/${parametros.idFilme}/showtimes`;
+
+        const promise = axios.get(URL);
+
+        promise.then((resposta) =>{
+            setSessions(resposta.data);
+        });
+
+        promise.catch((erro) =>{
+            console.log(erro.response.data);
+        });
+    }, []);
+
+    if(sessions === undefined){
+        return(
+            <LoadingDiv>
+                <img src={loading}></img>
+            </LoadingDiv>
+        )
+    }
 
     return (
         <PageContainer>
@@ -33,10 +63,10 @@ export default function SessionsPage() {
 
             <FooterContainer>
                 <div>
-                    <img src={"https://br.web.img2.acsta.net/pictures/22/05/16/17/59/5165498.jpg"} alt="poster" />
+                    <img src={sessions.posterURL} alt="poster" />
                 </div>
                 <div>
-                    <p>Tudo em todo lugar ao mesmo tempo</p>
+                    <p>{sessions.title}</p>
                 </div>
             </FooterContainer>
 
@@ -114,5 +144,15 @@ const FooterContainer = styled.div`
                 margin-top: 10px;
             }
         }
+    }
+`
+const LoadingDiv = styled.div`
+    padding-top: 10%;
+    width:100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    img{
+        width: 200px;
     }
 `
