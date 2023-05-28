@@ -2,6 +2,7 @@ import styled from "styled-components"
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import loading from '../../assets/loading.gif';
+import { Link } from "react-router-dom";
 
 export default function HomePage() {
     const [movies, setMovies] = useState([]);
@@ -36,7 +37,9 @@ export default function HomePage() {
             <ListContainer>
                 {movies.map(movie => (
                     <MovieContainer key={movie.id}>
-                    <img src={movie.posterURL} alt="movie poster"/>
+                        <Link to='/sessoes/37'>
+                            <img src={movie.posterURL} alt="movie poster"/>
+                        </Link>
                     </MovieContainer>
                 ))}
             </ListContainer>
