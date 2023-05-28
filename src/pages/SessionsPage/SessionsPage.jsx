@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom"
 import styled from "styled-components"
 import axios from "axios";
 import React,{ useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import loading from '../../assets/loading.gif';
 
 export default function SessionsPage() {
@@ -16,7 +17,6 @@ export default function SessionsPage() {
         const promise = axios.get(URL);
 
         promise.then((resposta) =>{
-            console.log(resposta.data);
             setSessions(resposta.data);
         });
 
@@ -42,7 +42,9 @@ export default function SessionsPage() {
                         {session.weekday} - {session.date}
                         <ButtonsContainer>
                             {session.showtimes.map(time => (
-                                <button key={time.id}>{time.name}</button>
+                                <Link to={`/assentos/${time.id}`} key={time.id}>
+                                    <button>{time.name}</button>
+                                </Link>
                             ))}
                         </ButtonsContainer>
                     </SessionContainer>

@@ -1,6 +1,35 @@
 import styled from "styled-components"
+import React,{ useEffect, useState } from "react";
+import { useParams } from "react-router-dom"
+import loading from '../../assets/loading.gif';
+import axios from "axios";
 
 export default function SeatsPage() {
+    const [seats, setSeats] = useState(undefined);
+
+    const parametros = useParams();
+
+    useEffect(() => {
+        const URL = `https://mock-api.driven.com.br/api/v8/cineflex/showtimes/${parametros.idSessao}/seats`;
+
+        const promise = axios.get(URL);
+
+        promise.then((resposta) =>{
+            setSeats(resposta.data);
+        });
+
+        promise.catch((erro) =>{
+            console.log(erro.response.data);
+        });
+    }, []);
+
+    if(seats === undefined){
+        return(
+            <LoadingDiv>
+                <img src={loading}></img>
+            </LoadingDiv>
+        )
+    }
 
     return (
         <PageContainer>
@@ -161,5 +190,15 @@ const FooterContainer = styled.div`
                 margin-top: 10px;
             }
         }
+    }
+`
+const LoadingDiv = styled.div`
+    padding-top: 10%;
+    width:100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    img{
+        width: 200px;
     }
 `
