@@ -3,12 +3,21 @@ import HomePage from "./pages/HomePage/HomePage"
 import SeatsPage from "./pages/SeatsPage/SeatsPage"
 import SessionsPage from "./pages/SessionsPage/SessionsPage"
 import SuccessPage from "./pages/SuccessPage/SuccessPage"
-import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom"
+import backArrow from "./assets/backarrow.svg"
 
 export default function App() {
+    const navigate = useNavigate();
+    const { pathname } = useLocation();
+
     return (
-        <BrowserRouter>
-            <NavContainer>CINEFLEX</NavContainer>
+        <>
+            <NavContainer>
+            {pathname !== "/" ? (
+                <img src={backArrow} data-test="go-home-header-btn" onClick={() => navigate(-1)} />
+            ) : null}
+                CINEFLEX
+            </NavContainer>
 
             <Routes>
                 <Route path="/" element={<HomePage />} />
@@ -16,7 +25,7 @@ export default function App() {
                 <Route path="/assentos/:idSessao" element={<SeatsPage />} />
                 <Route path="/sucesso" element={<SuccessPage />} />
             </Routes>
-        </BrowserRouter>
+        </>
     )
 }
 
@@ -35,5 +44,12 @@ const NavContainer = styled.div`
     a {
         text-decoration: none;
         color: #E8833A;
+    }
+    img{
+        position: fixed;
+        left: 25px;
+        top: 25px;
+        width: 24px;
+        cursor: pointer;
     }
 `
