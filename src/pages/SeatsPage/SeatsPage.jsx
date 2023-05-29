@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components';
 import React,{ useEffect, useState } from "react";
-import { useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import loading from '../../assets/loading.gif';
 import axios from "axios";
 
@@ -11,6 +11,7 @@ export default function SeatsPage() {
     const [cpf, setCpf] = useState("");
 
     const parametros = useParams();
+    const navigate = useNavigate();
 
     useEffect(() => {
         console.log(mySeats);
@@ -54,6 +55,32 @@ export default function SeatsPage() {
           .replace(/(-\d{2})\d+?$/, "$1"); // captura 2 numeros seguidos de um traço e não deixa ser digitado mais nada
     };
 
+    function reserveTickets(e){
+        e.preventDefault();
+
+        if (mySeats.length === 0){
+            alert("Escolha seus assentos primeiro");
+        }
+        else{
+            const reserve = {
+                ids: mySeats,
+                name: name,
+                cpf: cpf
+            }
+            const URL2 = "https://mock-api.driven.com.br/api/v8/cineflex/seats/book-many";
+
+            const promise2 = axios.post(URL2, reserve);
+
+            promise2.then((resposta) =>{
+                console.log(resposta.data);
+                navigate('/sucesso');
+            });
+
+            promise2.catch((erro) =>{
+                console.log(erro.response.data);
+            });
+        }
+    }
 
     if(seats === undefined){
         return(
@@ -93,7 +120,7 @@ export default function SeatsPage() {
                 </CaptionItem>
             </CaptionContainer>
 
-            <FormContainer>
+            <FormContainer onSubmit={reserveTickets}>
                 <label htmlFor="name">Nome do Comprador:</label>
                 <input
                 placeholder="Digite seu nome..."
@@ -151,7 +178,7 @@ const SeatsContainer = styled.div`
     justify-content: center;
     margin-top: 20px;
 `
-const FormContainer = styled.div`
+const FormContainer = styled.form`
     width: calc(100vw - 40px); 
     display: flex;
     flex-direction: column;
