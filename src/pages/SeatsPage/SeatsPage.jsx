@@ -32,19 +32,19 @@ export default function SeatsPage() {
         });
     }, []);
 
-    function selectSeats(available, isSelected, id) {
+    function selectSeats(available, isSelected, seat) {
         if (available === false) {
             alert("Esse assento não está disponível.");
         } else {
             if (available === true && isSelected === true) {
-                const novoArray = mySeats.filter(seatId => seatId !== id);
-                setMySeats(prevSeats => prevSeats.filter(seatId => seatId !== id));
+                setMySeats(prevSeats => prevSeats.filter(prevSeat => prevSeat.id !== seat.id));
             }
             if (available === true && isSelected === false) {
-                setMySeats(prevSeats => [...prevSeats, id]);
+                setMySeats(prevSeats => [...prevSeats, seat]);
             }
         }
     }
+
 
     const cpfMask = (value) => {
         return value
@@ -63,17 +63,27 @@ export default function SeatsPage() {
         }
         else{
             const reserve = {
-                ids: mySeats,
+                ids: mySeats.map(seat => seat.id),
                 name: name,
                 cpf: cpf
             }
+
+            const reserveInfo = {
+                movie: seats.movie.title,
+                day: seats.day.date,
+                hour: seats.name,
+                seats: mySeats.map(seat => seat.name),
+                cpf,
+                name,
+            };
+
             const URL2 = "https://mock-api.driven.com.br/api/v8/cineflex/seats/book-many";
 
             const promise2 = axios.post(URL2, reserve);
 
             promise2.then((resposta) =>{
                 console.log(resposta.data);
-                navigate('/sucesso');
+                navigate(`/sucesso`, { state: { reserveInfo } });
             });
 
             promise2.catch((erro) =>{
@@ -99,8 +109,8 @@ export default function SeatsPage() {
                 <SeatItem
                     className={seat.isAvailable}
                     key={seat.id}
-                    isSelected={mySeats.includes(seat.id)}
-                    onClick={() => selectSeats(seat.isAvailable, mySeats.includes(seat.id), seat.id)}
+                    isSelected={mySeats.includes(seat)}
+                    onClick={() => selectSeats(seat.isAvailable, mySeats.includes(seat), seat)}
                 >{seat.name}</SeatItem>
                 ))}
             </SeatsContainer>
