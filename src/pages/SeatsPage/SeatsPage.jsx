@@ -1,4 +1,4 @@
-import styled from "styled-components"
+import styled, { css } from 'styled-components';
 import React,{ useEffect, useState } from "react";
 import { useParams } from "react-router-dom"
 import loading from '../../assets/loading.gif';
@@ -6,8 +6,15 @@ import axios from "axios";
 
 export default function SeatsPage() {
     const [seats, setSeats] = useState(undefined);
+    const [mySeats, setMySeats] = useState([]);
+    const [name, setName] = useState("");
+    const [cpf, setCpf] = useState("");
 
     const parametros = useParams();
+
+    useEffect(() => {
+        console.log(mySeats);
+    }, [mySeats]);
 
     useEffect(() => {
         const URL = `https://mock-api.driven.com.br/api/v8/cineflex/showtimes/${parametros.idSessao}/seats`;
@@ -16,12 +23,37 @@ export default function SeatsPage() {
 
         promise.then((resposta) =>{
             setSeats(resposta.data);
+            console.log(resposta.data);
         });
 
         promise.catch((erro) =>{
             console.log(erro.response.data);
         });
     }, []);
+
+    function selectSeats(available, isSelected, id) {
+        if (available === false) {
+            alert("Esse assento não está disponível.");
+        } else {
+            if (available === true && isSelected === true) {
+                const novoArray = mySeats.filter(seatId => seatId !== id);
+                setMySeats(prevSeats => prevSeats.filter(seatId => seatId !== id));
+            }
+            if (available === true && isSelected === false) {
+                setMySeats(prevSeats => [...prevSeats, id]);
+            }
+        }
+    }
+
+    const cpfMask = (value) => {
+        return value
+          .replace(/\D/g, "") // substitui qualquer caracter que nao seja numero por nada
+          .replace(/(\d{3})(\d)/, "$1.$2") // captura 2 grupos de numero o primeiro de 3 e o segundo de 1, apos capturar o primeiro grupo ele adiciona um ponto antes do segundo grupo de numero
+            .replace(/(\d{3})(\d)/, "$1.$2")
+            .replace(/(\d{3})(\d{1,2})/, "$1-$2")
+          .replace(/(-\d{2})\d+?$/, "$1"); // captura 2 numeros seguidos de um traço e não deixa ser digitado mais nada
+    };
+
 
     if(seats === undefined){
         return(
@@ -36,45 +68,61 @@ export default function SeatsPage() {
             Selecione o(s) assento(s)
 
             <SeatsContainer>
-                <SeatItem>01</SeatItem>
-                <SeatItem>02</SeatItem>
-                <SeatItem>03</SeatItem>
-                <SeatItem>04</SeatItem>
-                <SeatItem>05</SeatItem>
+            {seats.seats.map(seat => (
+                <SeatItem
+                    className={seat.isAvailable}
+                    key={seat.id}
+                    isSelected={mySeats.includes(seat.id)}
+                    onClick={() => selectSeats(seat.isAvailable, mySeats.includes(seat.id), seat.id)}
+                >{seat.name}</SeatItem>
+                ))}
             </SeatsContainer>
 
             <CaptionContainer>
                 <CaptionItem>
-                    <CaptionCircle />
+                    <CaptionCircle className="selected"  />
                     Selecionado
                 </CaptionItem>
                 <CaptionItem>
-                    <CaptionCircle />
+                    <CaptionCircle className="true" />
                     Disponível
                 </CaptionItem>
                 <CaptionItem>
-                    <CaptionCircle />
+                    <CaptionCircle className="false" />
                     Indisponível
                 </CaptionItem>
             </CaptionContainer>
 
             <FormContainer>
-                Nome do Comprador:
-                <input placeholder="Digite seu nome..." />
+                <label htmlFor="name">Nome do Comprador:</label>
+                <input
+                placeholder="Digite seu nome..."
+                id='name'
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                />
 
-                CPF do Comprador:
-                <input placeholder="Digite seu CPF..." />
+                <label htmlFor="cpf">CPF do Comprador:</label>
+                <input
+                placeholder="Digite seu CPF..."
+                id='cpf'
+                required
+                value={cpfMask(cpf)}
+                maxLength='14'
+                onChange={(e) => setCpf(e.target.value)}
+                />
 
-                <button>Reservar Assento(s)</button>
+                <button type="submit">Reservar Assento(s)</button>
             </FormContainer>
 
             <FooterContainer>
                 <div>
-                    <img src={"https://br.web.img2.acsta.net/pictures/22/05/16/17/59/5165498.jpg"} alt="poster" />
+                    <img src={seats.movie.posterURL} alt="poster" />
                 </div>
                 <div>
-                    <p>Tudo em todo lugar ao mesmo tempo</p>
-                    <p>Sexta - 14h00</p>
+                    <p>{seats.movie.title}</p>
+                    <p>{seats.day.weekday} - {seats.name}</p>
                 </div>
             </FooterContainer>
 
@@ -111,10 +159,31 @@ const FormContainer = styled.div`
     margin: 20px 0;
     font-size: 18px;
     button {
+        margin-top: 20px;
         align-self: center;
+        font-size: 18px;
+        padding: 15px;
+        padding-left: 35px;
+        padding-right: 35px;
+        color: #FFFFFF;
+        background-color: #E8833A;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
     }
     input {
         width: calc(100vw - 60px);
+        border: 1px solid #D5D5D5;
+        border-radius: 3px;
+        padding-left: 10px;
+        padding: 15px;
+        margin-top: 10px;
+        margin-bottom: 15px;
+
+        &::placeholder {
+            color: #AFAFAF;
+            font-size: 18px;
+        }
     }
 `
 const CaptionContainer = styled.div`
@@ -134,12 +203,34 @@ const CaptionCircle = styled.div`
     align-items: center;
     justify-content: center;
     margin: 5px 3px;
+
+    ${props =>
+    props.className === "true" &&
+    css`
+        background: #C3CFD9;
+        border: 1px solid #7B8B99;
+    `}
+
+    ${props =>
+    props.className === "false" &&
+    css`
+        background: #FBE192;
+        border: 1px solid #F7C52B;
+    `}
+
+    ${props =>
+    props.className === 'selected' &&
+    css`
+        background: #1AAE9E;
+        border: 1px solid #0E7D71;
+    `}
 `
 const CaptionItem = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
     font-size: 12px;
+    color: #4E5A65;
 `
 const SeatItem = styled.div`
     border: 1px solid blue;         // Essa cor deve mudar
@@ -153,6 +244,28 @@ const SeatItem = styled.div`
     align-items: center;
     justify-content: center;
     margin: 5px 3px;
+    cursor: pointer;
+
+    ${props =>
+    props.className === true &&
+    css`
+        background: #C3CFD9;
+        border: 1px solid #7B8B99;
+    `}
+
+    ${props =>
+    props.className === false &&
+    css`
+        background: #FBE192;
+        border: 1px solid #F7C52B;
+    `}
+
+    ${props =>
+    props.isSelected &&
+    css`
+        background: #1AAE9E;
+        border: 1px solid #0E7D71;
+    `}
 `
 const FooterContainer = styled.div`
     width: 100%;
