@@ -109,6 +109,7 @@ export default function SeatsPage() {
                 <SeatItem
                     className={seat.isAvailable}
                     key={seat.id}
+                    data-test="seat"
                     isSelected={mySeats.includes(seat)}
                     onClick={() => selectSeats(seat.isAvailable, mySeats.includes(seat), seat)}
                 >{seat.name}</SeatItem>
@@ -135,6 +136,7 @@ export default function SeatsPage() {
                 <input
                 placeholder="Digite seu nome..."
                 id='name'
+                data-test="client-name"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -144,16 +146,17 @@ export default function SeatsPage() {
                 <input
                 placeholder="Digite seu CPF..."
                 id='cpf'
+                data-test="client-cpf"
                 required
                 value={cpfMask(cpf)}
                 maxLength='14'
                 onChange={(e) => setCpf(e.target.value)}
                 />
 
-                <button type="submit">Reservar Assento(s)</button>
+                <button type="submit" data-test="book-seat-btn">Reservar Assento(s)</button>
             </FormContainer>
 
-            <FooterContainer>
+            <FooterContainer data-test="footer">
                 <div>
                     <img src={seats.movie.posterURL} alt="poster" />
                 </div>
